@@ -12,5 +12,9 @@ data class SeedProducto(
     val mascota: String,
     val categoria: String,
     val variante: String? = null,
-    val nota: String? = null
+    val nota: String? = null,
+    val pesoKg: Double? = null,
+    val tipoArena: String? = null,
+    val fechaVencimiento: String? = null, // YYYY-MM-DD
+    val fotos: List<String>? = null
 )

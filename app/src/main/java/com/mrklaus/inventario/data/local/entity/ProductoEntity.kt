@@ -18,5 +18,9 @@ data class ProductoEntity(
     val categoria: Categoria,
     val variante: String?,
     val nota: String?,
+    val isFavorite: Boolean = false,
+    val fechaVencimiento: Long? = null,
+    val pesoKg: Double? = null,
+    val tipoArena: String? = null,
     val fechaActualizacion: Long = System.currentTimeMillis()
 )

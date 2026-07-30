@@ -9,6 +9,7 @@ import androidx.navigation.navArgument
 import com.mrklaus.inventario.ui.screens.agregar.AgregarProductoScreen
 import com.mrklaus.inventario.ui.screens.detalle.DetalleProductoScreen
 import com.mrklaus.inventario.ui.screens.lista.ListaProductosScreen
+import com.mrklaus.inventario.ui.screens.lista.FavoritosScreen
 
 @Composable
 fun NavGraph(navController: NavHostController) {
@@ -23,6 +24,9 @@ fun NavGraph(navController: NavHostController) {
                 },
                 onNavigateToAgregar = {
                     navController.navigate(Screen.Agregar.route)
+                },
+                onNavigateToFavoritos = {
+                    navController.navigate(Screen.Favoritos.route)
                 }
             )
         }
@@ -36,6 +40,15 @@ fun NavGraph(navController: NavHostController) {
         
         composable(Screen.Agregar.route) {
             AgregarProductoScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
+        composable(Screen.Favoritos.route) {
+            FavoritosScreen(
+                onNavigateToDetalle = { id ->
+                    navController.navigate(Screen.Detalle.createRoute(id))
+                },
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
     }
 }

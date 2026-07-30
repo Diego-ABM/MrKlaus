@@ -1,6 +1,7 @@
 package com.mrklaus.inventario.data.local
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -15,7 +16,7 @@ import kotlinx.coroutines.launch
 
 @Database(
     entities = [ProductoEntity::class, FotoProductoEntity::class],
-    version = 1,
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -33,6 +34,7 @@ abstract class AppDatabase : RoomDatabase() {
                     "mrklaus_database"
                 )
                 .addCallback(DatabaseCallback(context, scope))
+                .fallbackToDestructiveMigration()
                 .build()
                 INSTANCE = instance
                 instance
@@ -46,10 +48,19 @@ abstract class AppDatabase : RoomDatabase() {
     ) : RoomDatabase.Callback() {
         override fun onCreate(db: SupportSQLiteDatabase) {
             super.onCreate(db)
+            Log.d("AppDatabase", "onCreate called")
+        }
+
+        override fun onOpen(db: SupportSQLiteDatabase) {
+            super.onOpen(db)
+            Log.d("AppDatabase", "onOpen called")
             INSTANCE?.let { database ->
                 scope.launch(Dispatchers.IO) {
-                    val loader = SeedDataLoader(context, database.productoDao())
-                    loader.loadSeedData()
+                    val dao = database.productoDao()
+                    // Temporal: Forzar recarga para asegurar que las nuevas imágenes se carguen
+                    Log.d("AppDatabase", "Starting forced seed reload...")
+                    val loader = SeedDataLoader(context, dao)
+                    loader.loadSeedData(forceReload = true)
                 }
             }
         }

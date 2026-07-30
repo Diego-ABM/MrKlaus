@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ProductoDao {
+    @Query("SELECT COUNT(*) FROM productos")
+    suspend fun getCount(): Int
+
     @Transaction
     @Query("SELECT * FROM productos ORDER BY nombre ASC")
     fun getAll(): Flow<List<ProductoConFotos>>
@@ -20,6 +23,13 @@ interface ProductoDao {
     @Transaction
     @Query("SELECT * FROM productos WHERE id = :id")
     suspend fun getPorId(id: Long): ProductoConFotos?
+
+    @Transaction
+    @Query("SELECT * FROM productos WHERE isFavorite = 1 ORDER BY nombre ASC")
+    fun getFavoritos(): Flow<List<ProductoConFotos>>
+
+    @Query("UPDATE productos SET isFavorite = NOT isFavorite WHERE id = :id")
+    suspend fun toggleFavorito(id: Long)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertar(producto: ProductoEntity): Long
@@ -41,4 +51,10 @@ interface ProductoDao {
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertarFotos(fotos: List<FotoProductoEntity>): Unit
+
+    @Query("DELETE FROM productos")
+    suspend fun eliminarTodosLosProductos(): Unit
+
+    @Query("DELETE FROM fotos_producto")
+    suspend fun eliminarTodasLasFotos(): Unit
 }

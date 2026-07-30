@@ -77,4 +77,11 @@ class DetalleViewModel @Inject constructor(
             cargarProducto()
         }
     }
+
+    fun toggleFavorito() {
+        viewModelScope.launch {
+            repository.toggleFavorito(productoId)
+            cargarProducto()
+        }
+    }
 }

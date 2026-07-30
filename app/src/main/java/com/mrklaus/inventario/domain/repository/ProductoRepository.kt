@@ -13,4 +13,6 @@ interface ProductoRepository {
     suspend fun eliminarProducto(producto: Producto)
     suspend fun agregarFoto(productoId: Long, ruta: String)
     suspend fun eliminarFoto(ruta: String)
+    fun getFavoritos(): Flow<List<Producto>>
+    suspend fun toggleFavorito(productoId: Long)
 }

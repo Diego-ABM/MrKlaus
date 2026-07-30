@@ -15,6 +15,8 @@ import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -28,6 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.mrklaus.inventario.ui.theme.Spacing
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +41,7 @@ fun DetalleProductoScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
+    val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -47,6 +52,7 @@ fun DetalleProductoScreen(
 
     Scaffold(
         topBar = {
+            val producto = (uiState as? DetalleUiState.Exito)?.producto
             TopAppBar(
                 title = { Text("Detalle del Producto") },
                 navigationIcon = {
@@ -55,6 +61,15 @@ fun DetalleProductoScreen(
                     }
                 },
                 actions = {
+                    if (producto != null) {
+                        IconButton(onClick = { viewModel.toggleFavorito() }) {
+                            Icon(
+                                imageVector = if (producto.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                contentDescription = "Favorito",
+                                tint = if (producto.isFavorite) Color.Red else MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
                     IconButton(onClick = { showDeleteDialog = true }) {
                         Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                     }
@@ -164,10 +179,28 @@ fun DetalleProductoScreen(
                             modifier = Modifier.padding(vertical = Spacing.small)
                         )
 
-                        // Badge de Mascota y Categoría
+                        // Atributos adicionales
                         Row(horizontalArrangement = Arrangement.spacedBy(Spacing.small)) {
+                            producto.pesoKg?.let { SuggestionChip(onClick = {}, label = { Text("${it} kg") }) }
+                            producto.tipoArena?.let { SuggestionChip(onClick = {}, label = { Text(it) }) }
+                            producto.variante?.let { SuggestionChip(onClick = {}, label = { Text(it) }) }
+                        }
+
+                        // Badge de Mascota y Categoría
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(Spacing.small),
+                            modifier = Modifier.padding(top = Spacing.small)
+                        ) {
                             SuggestionChip(onClick = {}, label = { Text(producto.mascota.name) })
-                            SuggestionChip(onClick = {}, label = { Text(producto.categoria.name) })
+                            SuggestionChip(onClick = {}, label = { Text(producto.categoria.name.replace("_", " ")) })
+                        }
+
+                        if (producto.fechaVencimiento != null) {
+                            ListItem(
+                                headlineContent = { Text("Fecha de Vencimiento") },
+                                supportingContent = { Text(dateFormat.format(Date(producto.fechaVencimiento))) },
+                                leadingContent = { Icon(Icons.Default.Warning, contentDescription = null, tint = Color(0xFFFFA000)) }
+                            )
                         }
 
                         if (producto.nota != null) {

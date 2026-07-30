@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Event
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -16,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.mrklaus.inventario.domain.model.Producto
 import com.mrklaus.inventario.ui.theme.Spacing
+import java.util.concurrent.TimeUnit
 
 @Composable
 fun ProductoCard(
@@ -23,6 +25,11 @@ fun ProductoCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val esProximoAVencer = producto.fechaVencimiento?.let {
+        val diff = it - System.currentTimeMillis()
+        diff > 0 && TimeUnit.MILLISECONDS.toDays(diff) <= 30
+    } ?: false
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -33,7 +40,7 @@ fun ProductoCard(
         Row(
             modifier = Modifier
                 .padding(Spacing.medium)
-                .height(100.dp),
+                .height(110.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Imagen del producto
@@ -41,7 +48,7 @@ fun ProductoCard(
                 model = producto.fotos.firstOrNull(),
                 contentDescription = producto.nombre,
                 modifier = Modifier
-                    .size(80.dp)
+                    .size(90.dp)
                     .padding(end = Spacing.medium),
                 contentScale = ContentScale.Crop
             )
@@ -50,13 +57,29 @@ fun ProductoCard(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.Center
             ) {
-                Text(
-                    text = producto.nombre,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = producto.nombre,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (producto.pesoKg != null) {
+                        Surface(
+                            color = MaterialTheme.colorScheme.tertiaryContainer,
+                            shape = MaterialTheme.shapes.extraSmall,
+                            modifier = Modifier.padding(start = Spacing.small)
+                        ) {
+                            Text(
+                                text = "${producto.pesoKg}kg",
+                                style = MaterialTheme.typography.labelSmall,
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+                }
                 
                 Text(
                     text = "${producto.precio} COP",
@@ -64,31 +87,52 @@ fun ProductoCard(
                     color = MaterialTheme.colorScheme.primary
                 )
 
-                if (producto.cantidadStock <= producto.stockMinimo) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(top = Spacing.extraSmall)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Warning,
-                            contentDescription = "Stock Bajo",
-                            tint = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Text(
-                            text = " Stock Bajo: ${producto.cantidadStock}",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.error
-                        )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (producto.cantidadStock <= producto.stockMinimo) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(top = 2.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Warning,
+                                contentDescription = "Stock Bajo",
+                                tint = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Text(
+                                text = " Stock Bajo",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
                     }
-                } else {
-                    Text(
-                        text = "Stock: ${producto.cantidadStock}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.padding(top = Spacing.extraSmall)
-                    )
+
+                    if (esProximoAVencer) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(top = 2.dp, start = Spacing.small)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Event,
+                                contentDescription = "Próximo a vencer",
+                                tint = Color(0xFFFFA000), // Amber
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Text(
+                                text = " Por vencer",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color(0xFFFFA000)
+                            )
+                        }
+                    }
                 }
+
+                Text(
+                    text = "Stock: ${producto.cantidadStock} | ${producto.categoria.name.replace("_", " ").capitalize()}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
             }
         }
     }

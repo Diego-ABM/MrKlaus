@@ -11,6 +11,10 @@ data class Producto(
     val categoria: Categoria,
     val variante: String?,
     val nota: String?,
+    val isFavorite: Boolean,
+    val fechaVencimiento: Long?,
+    val pesoKg: Double?,
+    val tipoArena: String?,
     val fotos: List<String>,
     val fechaActualizacion: Long
 )

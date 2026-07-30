@@ -76,6 +76,10 @@ class AgregarViewModel @Inject constructor(
                 categoria = _categoria.value,
                 variante = null,
                 nota = null,
+                isFavorite = false,
+                fechaVencimiento = null,
+                pesoKg = null,
+                tipoArena = null,
                 fotos = emptyList(), // Se agregarán vía tabla fotos_producto
                 fechaActualizacion = System.currentTimeMillis()
             )

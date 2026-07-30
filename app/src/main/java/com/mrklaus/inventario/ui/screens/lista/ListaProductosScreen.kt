@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,6 +23,7 @@ import com.mrklaus.inventario.ui.theme.Spacing
 fun ListaProductosScreen(
     onNavigateToDetalle: (Long) -> Unit,
     onNavigateToAgregar: () -> Unit,
+    onNavigateToFavoritos: () -> Unit,
     viewModel: ListaViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -33,6 +35,15 @@ fun ListaProductosScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Mr. Klaus Inventario") },
+                actions = {
+                    IconButton(onClick = onNavigateToFavoritos) {
+                        Icon(
+                            imageVector = Icons.Default.Favorite,
+                            contentDescription = "Favoritos",
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary

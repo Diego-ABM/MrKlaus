@@ -65,6 +65,16 @@ class ProductoRepositoryImpl @Inject constructor(
         productoDao.eliminarFotoPorRuta(ruta)
     }
 
+    override fun getFavoritos(): Flow<List<Producto>> {
+        return productoDao.getFavoritos().map { list ->
+            list.map { it.toDomain() }
+        }
+    }
+
+    override suspend fun toggleFavorito(productoId: Long) {
+        productoDao.toggleFavorito(productoId)
+    }
+
     private fun ProductoConFotos.toDomain(): Producto {
         return Producto(
             id = producto.id,
@@ -77,6 +87,10 @@ class ProductoRepositoryImpl @Inject constructor(
             categoria = producto.categoria,
             variante = producto.variante,
             nota = producto.nota,
+            isFavorite = producto.isFavorite,
+            fechaVencimiento = producto.fechaVencimiento,
+            pesoKg = producto.pesoKg,
+            tipoArena = producto.tipoArena,
             fotos = fotos.sortedBy { it.orden }.map { it.rutaArchivo },
             fechaActualizacion = producto.fechaActualizacion
         )
@@ -94,6 +108,10 @@ class ProductoRepositoryImpl @Inject constructor(
             categoria = categoria,
             variante = variante,
             nota = nota,
+            isFavorite = isFavorite,
+            fechaVencimiento = fechaVencimiento,
+            pesoKg = pesoKg,
+            tipoArena = tipoArena,
             fechaActualizacion = fechaActualizacion
         )
     }
