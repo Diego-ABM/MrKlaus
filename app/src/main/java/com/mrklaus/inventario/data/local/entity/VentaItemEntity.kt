@@ -24,5 +24,6 @@ data class VentaItemEntity(
     val productoId: Long,
     val nombreProducto: String, // Copia al momento de venta
     val cantidad: Int,
+    val precioCompra: Double, // Costo al momento de venta
     val precioVenta: Double // Precio al momento de venta
 )

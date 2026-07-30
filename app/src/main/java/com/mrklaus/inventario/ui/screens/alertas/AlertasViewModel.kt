@@ -2,10 +2,10 @@ package com.mrklaus.inventario.ui.screens.alertas
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mrklaus.inventario.domain.model.Producto
 import com.mrklaus.inventario.domain.repository.ProductoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -18,4 +18,10 @@ class AlertasViewModel @Inject constructor(
 
     val proximosAVencer = repository.getProximosAVencer()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun toggleFavorito(productoId: Long) {
+        viewModelScope.launch {
+            repository.toggleFavorito(productoId)
+        }
+    }
 }

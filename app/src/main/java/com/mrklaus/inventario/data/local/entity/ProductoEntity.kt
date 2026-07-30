@@ -22,6 +22,7 @@ data class ProductoEntity(
     val fechaVencimiento: Long? = null,
     val pesoKg: Double? = null,
     val tipoArena: String? = null,
+    val precioCompra: Double = 0.0,
     val pedirAlProveedor: Boolean = false,
     val notaPedido: String? = null,
     val fechaActualizacion: Long = System.currentTimeMillis()

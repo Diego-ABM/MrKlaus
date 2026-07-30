@@ -58,4 +58,10 @@ class ListaViewModel @Inject constructor(
     fun buscar(query: String) {
         _queryBusqueda.value = query
     }
+
+    fun toggleFavorito(productoId: Long) {
+        viewModelScope.launch {
+            repository.toggleFavorito(productoId)
+        }
+    }
 }

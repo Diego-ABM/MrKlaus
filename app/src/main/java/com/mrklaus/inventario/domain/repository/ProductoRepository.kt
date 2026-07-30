@@ -20,4 +20,5 @@ interface ProductoRepository {
     fun getParaPedido(): Flow<List<Producto>>
     suspend fun actualizarEstadoPedido(id: Long, pedir: Boolean, nota: String?)
     suspend fun actualizarStock(id: Long, nuevoStock: Int)
+    fun getCapitalInvertido(): Flow<Double>
 }

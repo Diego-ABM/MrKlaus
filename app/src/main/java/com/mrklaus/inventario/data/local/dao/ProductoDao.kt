@@ -35,28 +35,28 @@ interface ProductoDao {
     suspend fun insertar(producto: ProductoEntity): Long
 
     @Update
-    suspend fun actualizar(producto: ProductoEntity): Unit
+    suspend fun actualizar(producto: ProductoEntity)
 
     @Delete
-    suspend fun eliminar(producto: ProductoEntity): Unit
+    suspend fun eliminar(producto: ProductoEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertarFoto(foto: FotoProductoEntity): Long
 
     @Query("DELETE FROM fotos_producto WHERE rutaArchivo = :ruta")
-    suspend fun eliminarFotoPorRuta(ruta: String): Unit
+    suspend fun eliminarFotoPorRuta(ruta: String)
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertarProductos(productos: List<ProductoEntity>): Unit
+    suspend fun insertarProductos(productos: List<ProductoEntity>)
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertarFotos(fotos: List<FotoProductoEntity>): Unit
+    suspend fun insertarFotos(fotos: List<FotoProductoEntity>)
 
     @Query("DELETE FROM productos")
-    suspend fun eliminarTodosLosProductos(): Unit
+    suspend fun eliminarTodosLosProductos()
 
     @Query("DELETE FROM fotos_producto")
-    suspend fun eliminarTodasLasFotos(): Unit
+    suspend fun eliminarTodasLasFotos()
 
     @Transaction
     @Query("SELECT * FROM productos WHERE fechaVencimiento IS NOT NULL ORDER BY fechaVencimiento ASC")
@@ -75,4 +75,7 @@ interface ProductoDao {
 
     @Query("UPDATE productos SET cantidadStock = :nuevoStock WHERE id = :id")
     suspend fun actualizarStock(id: Long, nuevoStock: Int)
+
+    @Query("SELECT SUM(cantidadStock * precioCompra) FROM productos")
+    fun getCapitalInvertido(): Flow<Double?>
 }

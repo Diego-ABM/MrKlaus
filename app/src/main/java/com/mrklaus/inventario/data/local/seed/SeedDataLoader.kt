@@ -45,6 +45,7 @@ class SeedDataLoader(private val context: Context, private val dao: ProductoDao)
                     nombre = seed.nombre,
                     descripcion = seed.descripcion,
                     precio = seed.precio,
+                    precioCompra = seed.precioCompra ?: (seed.precio * 0.7), // Usar definido o estimado
                     cantidadStock = seed.cantidadStock,
                     stockMinimo = seed.stockMinimo,
                     mascota = Mascota.valueOf(seed.mascota),

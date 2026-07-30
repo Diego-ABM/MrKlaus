@@ -13,6 +13,7 @@ data class VentaItem(
     val productoId: Long,
     val nombreProducto: String,
     val cantidad: Int,
+    val precioCompra: Double,
     val precioVenta: Double
 )
 

@@ -32,6 +32,9 @@ class AgregarViewModel @Inject constructor(
     private val _precio = MutableStateFlow("")
     val precio = _precio.asStateFlow()
 
+    private val _precioCompra = MutableStateFlow("")
+    val precioCompra = _precioCompra.asStateFlow()
+
     private val _mascota = MutableStateFlow(Mascota.PERRO)
     val mascota = _mascota.asStateFlow()
 
@@ -47,6 +50,7 @@ class AgregarViewModel @Inject constructor(
     fun onNombreChange(value: String) { _nombre.value = value }
     fun onDescripcionChange(value: String) { _descripcion.value = value }
     fun onPrecioChange(value: String) { _precio.value = value }
+    fun onPrecioCompraChange(value: String) { _precioCompra.value = value }
     fun onMascotaChange(value: Mascota) { _mascota.value = value }
     fun onCategoriaChange(value: Categoria) { _categoria.value = value }
     fun onStockChange(value: String) { _stock.value = value }
@@ -74,6 +78,7 @@ class AgregarViewModel @Inject constructor(
                 nombre = _nombre.value,
                 descripcion = _descripcion.value,
                 precio = _precio.value.toDoubleOrNull() ?: 0.0,
+                precioCompra = _precioCompra.value.toDoubleOrNull() ?: 0.0,
                 cantidadStock = _stock.value.toIntOrNull() ?: 0,
                 stockMinimo = 3,
                 mascota = _mascota.value,

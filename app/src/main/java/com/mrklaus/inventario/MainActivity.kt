@@ -6,9 +6,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
             MrKlausTheme {
                 val navController = rememberNavController()
                 val items = listOf(
-                    NavigationItem("Inventario", Screen.Lista, Icons.Default.List),
+                    NavigationItem("Inventario", Screen.Lista, Icons.AutoMirrored.Filled.List),
                     NavigationItem("Favoritos", Screen.Favoritos, Icons.Default.Favorite),
                     NavigationItem("Alertas", Screen.Alertas, Icons.Default.Notifications),
                     NavigationItem("Pedidos", Screen.Pedidos, Icons.Default.ShoppingCart),

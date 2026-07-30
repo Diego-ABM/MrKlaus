@@ -1,7 +1,11 @@
 package com.mrklaus.inventario.ui.screens.lista
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -11,6 +15,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mrklaus.inventario.domain.model.Categoria
@@ -30,15 +37,38 @@ fun ListaProductosScreen(
     val mascotaSeleccionada by viewModel.mascotaFiltro.collectAsState()
     val categoriaSeleccionada by viewModel.categoriaFiltro.collectAsState()
 
+    var titleVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { titleVisible = true }
+
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Mr. Klaus Inventario") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
-                )
+            val gradient = Brush.horizontalGradient(
+                colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
             )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(gradient)
+            ) {
+                TopAppBar(
+                    title = {
+                        AnimatedVisibility(
+                            visible = titleVisible,
+                            enter = fadeIn(animationSpec = tween(1000)) + slideInHorizontally(animationSpec = tween(1000))
+                        ) {
+                            Text(
+                                "Mr. Klaus Inventario",
+                                fontWeight = FontWeight.ExtraBold,
+                                style = MaterialTheme.typography.headlineSmall
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                )
+            }
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onNavigateToAgregar) {
@@ -85,18 +115,21 @@ fun ListaProductosScreen(
             }
 
             // Filtros de Categoría
-            Row(
+            LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = Spacing.medium, vertical = Spacing.small),
-                horizontalArrangement = Arrangement.spacedBy(Spacing.small)
+                horizontalArrangement = Arrangement.spacedBy(Spacing.small),
+                contentPadding = PaddingValues(end = Spacing.medium)
             ) {
-                FilterChip(
-                    selected = categoriaSeleccionada == null,
-                    onClick = { viewModel.filtrarPorCategoria(null) },
-                    label = { Text("Todas") }
-                )
-                Categoria.values().take(4).forEach { categoria ->
+                item {
+                    FilterChip(
+                        selected = categoriaSeleccionada == null,
+                        onClick = { viewModel.filtrarPorCategoria(null) },
+                        label = { Text("Todas") }
+                    )
+                }
+                items(Categoria.values()) { categoria ->
                     FilterChip(
                         selected = categoriaSeleccionada == categoria,
                         onClick = { viewModel.filtrarPorCategoria(categoria) },
@@ -120,7 +153,8 @@ fun ListaProductosScreen(
                         items(state.productos) { producto ->
                             ProductoCard(
                                 producto = producto,
-                                onClick = { onNavigateToDetalle(producto.id) }
+                                onClick = { onNavigateToDetalle(producto.id) },
+                                onToggleFavorite = { viewModel.toggleFavorito(producto.id) }
                             )
                         }
                     }

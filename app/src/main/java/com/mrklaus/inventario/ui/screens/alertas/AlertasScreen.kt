@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -17,12 +17,12 @@ import com.mrklaus.inventario.ui.theme.Spacing
 fun AlertasScreen(
     onNavigateToDetalle: (Long) -> Unit,
     onNavigateBack: () -> Unit,
-    viewModel: AlertasViewModel = hiltViewModel()
+    viewModel: AlertasViewModel = hiltViewModel(),
 ) {
     val agotados by viewModel.agotados.collectAsState()
     val proximosAVencer by viewModel.proximosAVencer.collectAsState()
     
-    var selectedTab by remember { mutableStateOf(0) }
+    var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("Vencimientos", "Agotados")
 
     Scaffold(
@@ -31,7 +31,7 @@ fun AlertasScreen(
                 title = { Text("Alertas de Inventario") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
                 }
             )
@@ -62,7 +62,8 @@ fun AlertasScreen(
                     items(productos) { producto ->
                         ProductoCard(
                             producto = producto,
-                            onClick = { onNavigateToDetalle(producto.id) }
+                            onClick = { onNavigateToDetalle(producto.id) },
+                            onToggleFavorite = { viewModel.toggleFavorito(producto.id) }
                         )
                     }
                 }

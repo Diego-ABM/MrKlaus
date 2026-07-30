@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -19,7 +19,7 @@ import com.mrklaus.inventario.ui.theme.Spacing
 fun PedidosScreen(
     onNavigateToDetalle: (Long) -> Unit,
     onNavigateBack: () -> Unit,
-    viewModel: PedidosViewModel = hiltViewModel()
+    viewModel: PedidosViewModel = hiltViewModel(),
 ) {
     val productos by viewModel.paraPedido.collectAsState()
 
@@ -29,7 +29,7 @@ fun PedidosScreen(
                 title = { Text("Pedidos al Proveedor") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
                 }
             )
@@ -49,7 +49,8 @@ fun PedidosScreen(
                     Column {
                         ProductoCard(
                             producto = producto,
-                            onClick = { onNavigateToDetalle(producto.id) }
+                            onClick = { onNavigateToDetalle(producto.id) },
+                            onToggleFavorite = { viewModel.toggleFavorito(producto.id) }
                         )
                         producto.notaPedido?.let {
                             Text(

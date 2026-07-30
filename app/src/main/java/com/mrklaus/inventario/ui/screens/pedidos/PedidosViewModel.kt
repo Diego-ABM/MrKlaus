@@ -6,6 +6,7 @@ import com.mrklaus.inventario.domain.repository.ProductoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -15,4 +16,10 @@ class PedidosViewModel @Inject constructor(
 
     val paraPedido = repository.getParaPedido()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun toggleFavorito(productoId: Long) {
+        viewModelScope.launch {
+            repository.toggleFavorito(productoId)
+        }
+    }
 }

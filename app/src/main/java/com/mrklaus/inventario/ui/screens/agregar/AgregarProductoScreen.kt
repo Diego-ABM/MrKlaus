@@ -12,8 +12,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddAPhoto
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -36,11 +36,12 @@ import java.util.*
 @Composable
 fun AgregarProductoScreen(
     onNavigateBack: () -> Unit,
-    viewModel: AgregarViewModel = hiltViewModel()
+    viewModel: AgregarViewModel = hiltViewModel(),
 ) {
     val nombre by viewModel.nombre.collectAsState()
     val descripcion by viewModel.descripcion.collectAsState()
     val precio by viewModel.precio.collectAsState()
+    val precioCompra by viewModel.precioCompra.collectAsState()
     val stock by viewModel.stock.collectAsState()
     val fechaVencimiento by viewModel.fechaVencimiento.collectAsState()
     val mascotaSeleccionada by viewModel.mascota.collectAsState()
@@ -52,11 +53,10 @@ fun AgregarProductoScreen(
     val datePickerState = rememberDatePickerState()
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri ->
-            uri?.let { viewModel.addFoto(it) }
-        }
-    )
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        uri?.let { viewModel.addFoto(it) }
+    }
 
     Scaffold(
         topBar = {
@@ -64,7 +64,7 @@ fun AgregarProductoScreen(
                 title = { Text("Nuevo Producto") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
                 }
             )
@@ -79,7 +79,7 @@ fun AgregarProductoScreen(
             verticalArrangement = Arrangement.spacedBy(Spacing.medium)
         ) {
             // Carrusel de selección de fotos
-            val pagerState = rememberPagerState(pageCount = { (fotosSeleccionadas.size).coerceAtLeast(1) })
+            val pagerState = rememberPagerState { fotosSeleccionadas.size.coerceAtLeast(1) }
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -159,24 +159,32 @@ fun AgregarProductoScreen(
 
             Row(horizontalArrangement = Arrangement.spacedBy(Spacing.medium)) {
                 OutlinedTextField(
-                    value = precio,
-                    onValueChange = viewModel::onPrecioChange,
-                    label = { Text("Precio (COP)") },
+                    value = precioCompra,
+                    onValueChange = viewModel::onPrecioCompraChange,
+                    label = { Text("Costo (Compra)") },
                     modifier = Modifier.weight(1f),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
                 OutlinedTextField(
-                    value = stock,
-                    onValueChange = viewModel::onStockChange,
-                    label = { Text("Stock inicial") },
+                    value = precio,
+                    onValueChange = viewModel::onPrecioChange,
+                    label = { Text("Precio (Venta)") },
                     modifier = Modifier.weight(1f),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
             }
+            
+            OutlinedTextField(
+                value = stock,
+                onValueChange = viewModel::onStockChange,
+                label = { Text("Stock inicial") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
 
             Text("Mascota", style = MaterialTheme.typography.titleSmall)
             Row(horizontalArrangement = Arrangement.spacedBy(Spacing.small)) {
-                Mascota.values().forEach { mascota ->
+                Mascota.entries.forEach { mascota ->
                     FilterChip(
                         selected = mascotaSeleccionada == mascota,
                         onClick = { viewModel.onMascotaChange(mascota) },
@@ -190,7 +198,7 @@ fun AgregarProductoScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(Spacing.small)
             ) {
-                Categoria.values().forEach { categoria ->
+                Categoria.entries.forEach { categoria ->
                     FilterChip(
                         selected = categoriaSeleccionada == categoria,
                         onClick = { viewModel.onCategoriaChange(categoria) },
@@ -234,10 +242,12 @@ fun AgregarProductoScreen(
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
-                TextButton(onClick = {
-                    viewModel.onFechaVencimientoChange(datePickerState.selectedDateMillis)
-                    showDatePicker = false
-                }) { Text("Confirmar") }
+                TextButton(
+                    onClick = {
+                        viewModel.onFechaVencimientoChange(datePickerState.selectedDateMillis)
+                        showDatePicker = false
+                    }
+                ) { Text("Confirmar") }
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) { Text("Cancelar") }

@@ -109,6 +109,7 @@ class DetalleViewModel @Inject constructor(
                                 productoId = producto.id,
                                 nombreProducto = producto.nombre,
                                 cantidad = cantidad,
+                                precioCompra = producto.precioCompra,
                                 precioVenta = producto.precio
                             )
                         )

@@ -6,7 +6,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface VentaRepository {
     suspend fun registrarVenta(venta: Venta)
-    fun getTodasLasVentas(): Flow<List<Venta>>
-    fun getRotacionProductos(): Flow<List<ProductoRotacion>>
-    fun getGananciasTotales(): Flow<Double>
+    fun getVentasPorRango(inicio: Long, fin: Long): Flow<List<Venta>>
+    fun getRotacionProductosEnRango(inicio: Long, fin: Long): Flow<List<ProductoRotacion>>
+    fun getGananciaNetaEnRango(inicio: Long, fin: Long): Flow<Double>
+    fun getVentasTotalesEnRango(inicio: Long, fin: Long): Flow<Double>
 }

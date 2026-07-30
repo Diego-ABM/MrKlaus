@@ -7,6 +7,7 @@ data class SeedProducto(
     val nombre: String,
     val descripcion: String,
     val precio: Double,
+    val precioCompra: Double? = null,
     val cantidadStock: Int,
     val stockMinimo: Int,
     val mascota: String,

@@ -19,18 +19,19 @@ class VentaRepositoryImpl @Inject constructor(
         val entity = VentaEntity(total = venta.total, fecha = venta.fecha)
         val itemEntities = venta.items.map { 
             VentaItemEntity(
-                ventaId = 0, // Será asignado por el DAO
+                ventaId = 0,
                 productoId = it.productoId,
                 nombreProducto = it.nombreProducto,
                 cantidad = it.cantidad,
+                precioCompra = it.precioCompra,
                 precioVenta = it.precioVenta
             )
         }
         ventaDao.registrarVenta(entity, itemEntities)
     }
 
-    override fun getTodasLasVentas(): Flow<List<Venta>> {
-        return ventaDao.getTodasLasVentas().map { list ->
+    override fun getVentasPorRango(inicio: Long, fin: Long): Flow<List<Venta>> {
+        return ventaDao.getVentasPorRango(inicio, fin).map { list ->
             list.map { entity ->
                 val items = ventaDao.getItemsDeVenta(entity.id).map { it.toDomain() }
                 Venta(
@@ -43,14 +44,18 @@ class VentaRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getRotacionProductos(): Flow<List<ProductoRotacion>> {
-        return ventaDao.getRotacionProductos().map { list ->
+    override fun getRotacionProductosEnRango(inicio: Long, fin: Long): Flow<List<ProductoRotacion>> {
+        return ventaDao.getRotacionProductosEnRango(inicio, fin).map { list ->
             list.map { ProductoRotacion(it.nombre, it.totalVendido) }
         }
     }
 
-    override fun getGananciasTotales(): Flow<Double> {
-        return ventaDao.getGananciasTotales().map { it ?: 0.0 }
+    override fun getGananciaNetaEnRango(inicio: Long, fin: Long): Flow<Double> {
+        return ventaDao.getGananciaNetaEnRango(inicio, fin).map { it ?: 0.0 }
+    }
+
+    override fun getVentasTotalesEnRango(inicio: Long, fin: Long): Flow<Double> {
+        return ventaDao.getVentasTotalesEnRango(inicio, fin).map { it ?: 0.0 }
     }
 
     private fun VentaItemEntity.toDomain() = VentaItem(
@@ -59,6 +64,7 @@ class VentaRepositoryImpl @Inject constructor(
         productoId = productoId,
         nombreProducto = nombreProducto,
         cantidad = cantidad,
+        precioCompra = precioCompra,
         precioVenta = precioVenta
     )
 }

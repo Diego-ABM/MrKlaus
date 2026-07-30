@@ -3,6 +3,8 @@ package com.mrklaus.inventario.ui.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material3.*
@@ -23,7 +25,8 @@ import java.util.concurrent.TimeUnit
 fun ProductoCard(
     producto: Producto,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onToggleFavorite: () -> Unit = {},
 ) {
     val vencimientoInfo = producto.fechaVencimiento?.let {
         val diff = it - System.currentTimeMillis()
@@ -74,6 +77,16 @@ fun ProductoCard(
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f)
                     )
+                    
+                    IconButton(onClick = onToggleFavorite) {
+                        Icon(
+                            imageVector = if (producto.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = "Favorito",
+                            tint = if (producto.isFavorite) Color.Red else MaterialTheme.colorScheme.outline,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
                     if (producto.pesoKg != null) {
                         Surface(
                             color = MaterialTheme.colorScheme.tertiaryContainer,
@@ -136,7 +149,7 @@ fun ProductoCard(
                 }
 
                 Text(
-                    text = "Stock: ${producto.cantidadStock} | ${producto.categoria.name.replace("_", " ").capitalize()}",
+                    text = "Stock: ${producto.cantidadStock} | ${producto.categoria.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() }}",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.padding(top = 4.dp)

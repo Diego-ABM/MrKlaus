@@ -54,7 +54,8 @@ fun FavoritosScreen(
                         items(state.productos) { producto ->
                             ProductoCard(
                                 producto = producto,
-                                onClick = { onNavigateToDetalle(producto.id) }
+                                onClick = { onNavigateToDetalle(producto.id) },
+                                onToggleFavorite = { viewModel.toggleFavorito(producto.id) }
                             )
                         }
                     }

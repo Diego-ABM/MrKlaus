@@ -11,8 +11,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddAPhoto
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Favorite
@@ -29,7 +29,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
-import com.mrklaus.inventario.domain.model.Producto
 import com.mrklaus.inventario.ui.theme.Spacing
 import java.text.SimpleDateFormat
 import java.util.*
@@ -38,20 +37,19 @@ import java.util.*
 @Composable
 fun DetalleProductoScreen(
     onNavigateBack: () -> Unit,
-    viewModel: DetalleViewModel = hiltViewModel()
+    viewModel: DetalleViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showSaleDialog by remember { mutableStateOf(false) }
     var showOrderDialog by remember { mutableStateOf(false) }
-    val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri ->
-            uri?.let { viewModel.agregarFoto(it) }
-        }
-    )
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        uri?.let { viewModel.agregarFoto(it) }
+    }
 
     Scaffold(
         topBar = {
@@ -60,7 +58,7 @@ fun DetalleProductoScreen(
                 title = { Text("Detalle del Producto") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
                 },
                 actions = {
@@ -95,7 +93,7 @@ fun DetalleProductoScreen(
                         .verticalScroll(rememberScrollState())
                 ) {
                     // Carrusel de imágenes
-                    val pagerState = rememberPagerState(pageCount = { (producto.fotos.size).coerceAtLeast(1) })
+                    val pagerState = rememberPagerState { producto.fotos.size.coerceAtLeast(1) }
                     Box(modifier = Modifier.fillMaxWidth().height(300.dp)) {
                         if (producto.fotos.isNotEmpty()) {
                             HorizontalPager(
@@ -176,15 +174,21 @@ fun DetalleProductoScreen(
                         )
                         
                         Text(
-                            text = "${producto.precio} COP",
+                            text = "Venta: ${producto.precio} COP",
                             style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(vertical = Spacing.small)
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        
+                        Text(
+                            text = "Costo: ${producto.precioCompra} COP",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.secondary,
+                            modifier = Modifier.padding(bottom = Spacing.small)
                         )
 
                         // Atributos adicionales
                         Row(horizontalArrangement = Arrangement.spacedBy(Spacing.small)) {
-                            producto.pesoKg?.let { SuggestionChip(onClick = {}, label = { Text("${it} kg") }) }
+                            producto.pesoKg?.let { SuggestionChip(onClick = {}, label = { Text("$it kg") }) }
                             producto.tipoArena?.let { SuggestionChip(onClick = {}, label = { Text(it) }) }
                             producto.variante?.let { SuggestionChip(onClick = {}, label = { Text(it) }) }
                         }
@@ -270,7 +274,7 @@ fun DetalleProductoScreen(
                             modifier = Modifier.padding(top = Spacing.small)
                         )
 
-                        Divider(modifier = Modifier.padding(vertical = Spacing.large))
+                        HorizontalDivider(modifier = Modifier.padding(vertical = Spacing.large))
 
                         // Gestión de Stock
                         Text(text = "Inventario", style = MaterialTheme.typography.titleMedium)
@@ -323,13 +327,15 @@ fun DetalleProductoScreen(
                 }
             },
             confirmButton = {
-                TextButton(onClick = {
-                    val cant = cantidadAVender.toIntOrNull() ?: 0
-                    if (cant > 0) {
-                        viewModel.registrarVenta(cant)
-                        showSaleDialog = false
+                TextButton(
+                    onClick = {
+                        val cant = cantidadAVender.toIntOrNull() ?: 0
+                        if (cant > 0) {
+                            viewModel.registrarVenta(cant)
+                            showSaleDialog = false
+                        }
                     }
-                }) { Text("Confirmar") }
+                ) { Text("Confirmar") }
             },
             dismissButton = {
                 TextButton(onClick = { showSaleDialog = false }) { Text("Cancelar") }
@@ -360,10 +366,12 @@ fun DetalleProductoScreen(
                 }
             },
             confirmButton = {
-                TextButton(onClick = {
-                    viewModel.actualizarEstadoPedido(pedir, if (pedir) nota else null)
-                    showOrderDialog = false
-                }) { Text("Guardar") }
+                TextButton(
+                    onClick = {
+                        viewModel.actualizarEstadoPedido(pedir, if (pedir) nota else null)
+                        showOrderDialog = false
+                    }
+                ) { Text("Guardar") }
             },
             dismissButton = {
                 TextButton(onClick = { showOrderDialog = false }) { Text("Cancelar") }
@@ -377,12 +385,14 @@ fun DetalleProductoScreen(
             title = { Text("Eliminar Producto") },
             text = { Text("¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer.") },
             confirmButton = {
-                TextButton(onClick = {
-                    viewModel.eliminarProducto {
-                        showDeleteDialog = false
-                        onNavigateBack()
+                TextButton(
+                    onClick = {
+                        viewModel.eliminarProducto {
+                            showDeleteDialog = false
+                            onNavigateBack()
+                        }
                     }
-                }) { Text("Eliminar", color = MaterialTheme.colorScheme.error) }
+                ) { Text("Eliminar", color = MaterialTheme.colorScheme.error) }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = false }) { Text("Cancelar") }

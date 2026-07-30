@@ -101,6 +101,10 @@ class ProductoRepositoryImpl @Inject constructor(
         productoDao.actualizarStock(id, nuevoStock)
     }
 
+    override fun getCapitalInvertido(): Flow<Double> {
+        return productoDao.getCapitalInvertido().map { it ?: 0.0 }
+    }
+
     private fun ProductoConFotos.toDomain(): Producto {
         return Producto(
             id = producto.id,
@@ -117,6 +121,7 @@ class ProductoRepositoryImpl @Inject constructor(
             fechaVencimiento = producto.fechaVencimiento,
             pesoKg = producto.pesoKg,
             tipoArena = producto.tipoArena,
+            precioCompra = producto.precioCompra,
             pedirAlProveedor = producto.pedirAlProveedor,
             notaPedido = producto.notaPedido,
             fotos = fotos.sortedBy { it.orden }.map { it.rutaArchivo },
@@ -140,6 +145,7 @@ class ProductoRepositoryImpl @Inject constructor(
             fechaVencimiento = fechaVencimiento,
             pesoKg = pesoKg,
             tipoArena = tipoArena,
+            precioCompra = precioCompra,
             pedirAlProveedor = pedirAlProveedor,
             notaPedido = notaPedido,
             fechaActualizacion = fechaActualizacion

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.mrklaus.inventario.domain.repository.ProductoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,4 +26,10 @@ class FavoritosViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = ListaUiState.Cargando
         )
+
+    fun toggleFavorito(productoId: Long) {
+        viewModelScope.launch {
+            repository.toggleFavorito(productoId)
+        }
+    }
 }

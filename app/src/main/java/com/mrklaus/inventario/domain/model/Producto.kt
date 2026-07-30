@@ -15,6 +15,7 @@ data class Producto(
     val fechaVencimiento: Long?,
     val pesoKg: Double?,
     val tipoArena: String?,
+    val precioCompra: Double,
     val pedirAlProveedor: Boolean = false,
     val notaPedido: String? = null,
     val fotos: List<String>,
