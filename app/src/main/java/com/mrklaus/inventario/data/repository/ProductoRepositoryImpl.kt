@@ -75,6 +75,32 @@ class ProductoRepositoryImpl @Inject constructor(
         productoDao.toggleFavorito(productoId)
     }
 
+    override fun getProximosAVencer(): Flow<List<Producto>> {
+        return productoDao.getProximosAVencer().map { list ->
+            list.map { it.toDomain() }
+        }
+    }
+
+    override fun getAgotados(): Flow<List<Producto>> {
+        return productoDao.getAgotados().map { list ->
+            list.map { it.toDomain() }
+        }
+    }
+
+    override fun getParaPedido(): Flow<List<Producto>> {
+        return productoDao.getParaPedido().map { list ->
+            list.map { it.toDomain() }
+        }
+    }
+
+    override suspend fun actualizarEstadoPedido(id: Long, pedir: Boolean, nota: String?) {
+        productoDao.actualizarEstadoPedido(id, pedir, nota)
+    }
+
+    override suspend fun actualizarStock(id: Long, nuevoStock: Int) {
+        productoDao.actualizarStock(id, nuevoStock)
+    }
+
     private fun ProductoConFotos.toDomain(): Producto {
         return Producto(
             id = producto.id,
@@ -91,6 +117,8 @@ class ProductoRepositoryImpl @Inject constructor(
             fechaVencimiento = producto.fechaVencimiento,
             pesoKg = producto.pesoKg,
             tipoArena = producto.tipoArena,
+            pedirAlProveedor = producto.pedirAlProveedor,
+            notaPedido = producto.notaPedido,
             fotos = fotos.sortedBy { it.orden }.map { it.rutaArchivo },
             fechaActualizacion = producto.fechaActualizacion
         )
@@ -112,6 +140,8 @@ class ProductoRepositoryImpl @Inject constructor(
             fechaVencimiento = fechaVencimiento,
             pesoKg = pesoKg,
             tipoArena = tipoArena,
+            pedirAlProveedor = pedirAlProveedor,
+            notaPedido = notaPedido,
             fechaActualizacion = fechaActualizacion
         )
     }

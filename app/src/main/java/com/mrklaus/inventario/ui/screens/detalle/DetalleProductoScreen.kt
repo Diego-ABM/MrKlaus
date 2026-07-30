@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import com.mrklaus.inventario.domain.model.Producto
 import com.mrklaus.inventario.ui.theme.Spacing
 import java.text.SimpleDateFormat
 import java.util.*
@@ -41,6 +42,8 @@ fun DetalleProductoScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showSaleDialog by remember { mutableStateOf(false) }
+    var showOrderDialog by remember { mutableStateOf(false) }
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
@@ -196,11 +199,51 @@ fun DetalleProductoScreen(
                         }
 
                         if (producto.fechaVencimiento != null) {
+                            val daysLeft = ((producto.fechaVencimiento - System.currentTimeMillis()) / (1000 * 60 * 60 * 24)).toInt()
+                            val color = when {
+                                daysLeft <= 30 -> Color.Red
+                                daysLeft <= 60 -> Color(0xFFFFA000) // Naranja
+                                else -> Color(0xFF4CAF50) // Verde
+                            }
+                            
                             ListItem(
                                 headlineContent = { Text("Fecha de Vencimiento") },
-                                supportingContent = { Text(dateFormat.format(Date(producto.fechaVencimiento))) },
-                                leadingContent = { Icon(Icons.Default.Warning, contentDescription = null, tint = Color(0xFFFFA000)) }
+                                supportingContent = { 
+                                    Text(
+                                        text = "${dateFormat.format(Date(producto.fechaVencimiento))} ($daysLeft días restantes)",
+                                        color = color,
+                                        fontWeight = FontWeight.Bold
+                                    ) 
+                                },
+                                leadingContent = { Icon(Icons.Default.Warning, contentDescription = null, tint = color) }
                             )
+                        } else {
+                            ListItem(
+                                headlineContent = { Text("Fecha de Vencimiento") },
+                                supportingContent = { Text("No Aplica (N/A)") }
+                            )
+                        }
+
+                        if (producto.pedirAlProveedor) {
+                            Card(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.small),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+                            ) {
+                                Column(modifier = Modifier.padding(Spacing.medium)) {
+                                    Text("Marcado para Pedido", style = MaterialTheme.typography.titleSmall)
+                                    producto.notaPedido?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+                                    TextButton(onClick = { showOrderDialog = true }) {
+                                        Text("Editar Nota / Quitar")
+                                    }
+                                }
+                            }
+                        } else {
+                            OutlinedButton(
+                                onClick = { showOrderDialog = true },
+                                modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.small)
+                            ) {
+                                Text("Añadir a Pedidos")
+                            }
                         }
 
                         if (producto.nota != null) {
@@ -247,11 +290,85 @@ fun DetalleProductoScreen(
                                 }
                             }
                         }
+                        
+                        Button(
+                            onClick = { showSaleDialog = true },
+                            modifier = Modifier.fillMaxWidth().padding(top = Spacing.medium),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+                            enabled = producto.cantidadStock > 0
+                        ) {
+                            Text("Registrar Venta")
+                        }
                     }
                 }
             }
             else -> {}
         }
+    }
+
+    if (showSaleDialog) {
+        var cantidadAVender by remember { mutableStateOf("1") }
+        AlertDialog(
+            onDismissRequest = { showSaleDialog = false },
+            title = { Text("Registrar Venta") },
+            text = {
+                Column {
+                    Text("¿Cuántas unidades vendiste?")
+                    OutlinedTextField(
+                        value = cantidadAVender,
+                        onValueChange = { cantidadAVender = it },
+                        modifier = Modifier.fillMaxWidth().padding(top = Spacing.small),
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    val cant = cantidadAVender.toIntOrNull() ?: 0
+                    if (cant > 0) {
+                        viewModel.registrarVenta(cant)
+                        showSaleDialog = false
+                    }
+                }) { Text("Confirmar") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showSaleDialog = false }) { Text("Cancelar") }
+            }
+        )
+    }
+
+    if (showOrderDialog) {
+        val producto = (uiState as? DetalleUiState.Exito)?.producto
+        var nota by remember { mutableStateOf(producto?.notaPedido ?: "") }
+        var pedir by remember { mutableStateOf(producto?.pedirAlProveedor ?: true) }
+        
+        AlertDialog(
+            onDismissRequest = { showOrderDialog = false },
+            title = { Text("Pedido al Proveedor") },
+            text = {
+                Column {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(checked = pedir, onCheckedChange = { pedir = it })
+                        Text("Marcar para próximo pedido")
+                    }
+                    OutlinedTextField(
+                        value = nota,
+                        onValueChange = { nota = it },
+                        label = { Text("Nota (ej. pedido por cliente Juan)") },
+                        modifier = Modifier.fillMaxWidth().padding(top = Spacing.small)
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.actualizarEstadoPedido(pedir, if (pedir) nota else null)
+                    showOrderDialog = false
+                }) { Text("Guardar") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showOrderDialog = false }) { Text("Cancelar") }
+            }
+        )
     }
 
     if (showDeleteDialog) {

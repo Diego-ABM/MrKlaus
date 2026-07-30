@@ -57,4 +57,22 @@ interface ProductoDao {
 
     @Query("DELETE FROM fotos_producto")
     suspend fun eliminarTodasLasFotos(): Unit
+
+    @Transaction
+    @Query("SELECT * FROM productos WHERE fechaVencimiento IS NOT NULL ORDER BY fechaVencimiento ASC")
+    fun getProximosAVencer(): Flow<List<ProductoConFotos>>
+
+    @Transaction
+    @Query("SELECT * FROM productos WHERE cantidadStock <= 0 ORDER BY nombre ASC")
+    fun getAgotados(): Flow<List<ProductoConFotos>>
+
+    @Transaction
+    @Query("SELECT * FROM productos WHERE pedirAlProveedor = 1 ORDER BY nombre ASC")
+    fun getParaPedido(): Flow<List<ProductoConFotos>>
+
+    @Query("UPDATE productos SET pedirAlProveedor = :pedir, notaPedido = :nota WHERE id = :id")
+    suspend fun actualizarEstadoPedido(id: Long, pedir: Boolean, nota: String?)
+
+    @Query("UPDATE productos SET cantidadStock = :nuevoStock WHERE id = :id")
+    suspend fun actualizarStock(id: Long, nuevoStock: Int)
 }

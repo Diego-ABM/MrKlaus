@@ -3,6 +3,7 @@ package com.mrklaus.inventario.di
 import android.content.Context
 import com.mrklaus.inventario.data.local.AppDatabase
 import com.mrklaus.inventario.data.local.dao.ProductoDao
+import com.mrklaus.inventario.data.local.dao.VentaDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -32,5 +33,10 @@ object DatabaseModule {
     @Provides
     fun provideProductoDao(database: AppDatabase): ProductoDao {
         return database.productoDao()
+    }
+
+    @Provides
+    fun provideVentaDao(database: AppDatabase): VentaDao {
+        return database.ventaDao()
     }
 }

@@ -7,20 +7,29 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.mrklaus.inventario.data.local.dao.ProductoDao
+import com.mrklaus.inventario.data.local.dao.VentaDao
 import com.mrklaus.inventario.data.local.entity.FotoProductoEntity
 import com.mrklaus.inventario.data.local.entity.ProductoEntity
+import com.mrklaus.inventario.data.local.entity.VentaEntity
+import com.mrklaus.inventario.data.local.entity.VentaItemEntity
 import com.mrklaus.inventario.data.local.seed.SeedDataLoader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [ProductoEntity::class, FotoProductoEntity::class],
-    version = 4,
+    entities = [
+        ProductoEntity::class, 
+        FotoProductoEntity::class, 
+        VentaEntity::class, 
+        VentaItemEntity::class
+    ],
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun productoDao(): ProductoDao
+    abstract fun ventaDao(): VentaDao
 
     companion object {
         @Volatile

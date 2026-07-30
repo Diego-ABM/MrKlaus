@@ -29,6 +29,8 @@ import coil3.compose.AsyncImage
 import com.mrklaus.inventario.domain.model.Categoria
 import com.mrklaus.inventario.domain.model.Mascota
 import com.mrklaus.inventario.ui.theme.Spacing
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -40,9 +42,14 @@ fun AgregarProductoScreen(
     val descripcion by viewModel.descripcion.collectAsState()
     val precio by viewModel.precio.collectAsState()
     val stock by viewModel.stock.collectAsState()
+    val fechaVencimiento by viewModel.fechaVencimiento.collectAsState()
     val mascotaSeleccionada by viewModel.mascota.collectAsState()
     val categoriaSeleccionada by viewModel.categoria.collectAsState()
     val fotosSeleccionadas by viewModel.fotosSeleccionadas.collectAsState()
+    
+    val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
+    var showDatePicker by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState()
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -192,6 +199,25 @@ fun AgregarProductoScreen(
                 }
             }
 
+            Text("Fecha de Vencimiento", style = MaterialTheme.typography.titleSmall)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Spacing.medium)
+            ) {
+                OutlinedButton(
+                    onClick = { showDatePicker = true },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(fechaVencimiento?.let { dateFormat.format(Date(it)) } ?: "Seleccionar Fecha")
+                }
+                
+                if (fechaVencimiento != null) {
+                    TextButton(onClick = { viewModel.onFechaVencimientoChange(null) }) {
+                        Text("No aplica")
+                    }
+                }
+            }
+
             Spacer(Modifier.height(Spacing.large))
 
             Button(
@@ -201,6 +227,23 @@ fun AgregarProductoScreen(
             ) {
                 Text("Guardar Producto")
             }
+        }
+    }
+
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.onFechaVencimientoChange(datePickerState.selectedDateMillis)
+                    showDatePicker = false
+                }) { Text("Confirmar") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) { Text("Cancelar") }
+            }
+        ) {
+            DatePicker(state = datePickerState)
         }
     }
 }

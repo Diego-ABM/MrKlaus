@@ -15,4 +15,9 @@ interface ProductoRepository {
     suspend fun eliminarFoto(ruta: String)
     fun getFavoritos(): Flow<List<Producto>>
     suspend fun toggleFavorito(productoId: Long)
+    fun getProximosAVencer(): Flow<List<Producto>>
+    fun getAgotados(): Flow<List<Producto>>
+    fun getParaPedido(): Flow<List<Producto>>
+    suspend fun actualizarEstadoPedido(id: Long, pedir: Boolean, nota: String?)
+    suspend fun actualizarStock(id: Long, nuevoStock: Int)
 }

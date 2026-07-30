@@ -25,10 +25,18 @@ fun ProductoCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val esProximoAVencer = producto.fechaVencimiento?.let {
+    val vencimientoInfo = producto.fechaVencimiento?.let {
         val diff = it - System.currentTimeMillis()
-        diff > 0 && TimeUnit.MILLISECONDS.toDays(diff) <= 30
-    } ?: false
+        val days = TimeUnit.MILLISECONDS.toDays(diff).toInt()
+        val color = when {
+            days <= 30 -> Color.Red
+            days <= 60 -> Color(0xFFFFA000)
+            else -> Color(0xFF4CAF50)
+        }
+        Triple(days, color, true)
+    } ?: Triple(0, Color.Transparent, false)
+
+    val (daysLeft, vencimientoColor, hasVencimiento) = vencimientoInfo
 
     Card(
         modifier = modifier
@@ -107,21 +115,21 @@ fun ProductoCard(
                         }
                     }
 
-                    if (esProximoAVencer) {
+                    if (hasVencimiento) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.padding(top = 2.dp, start = Spacing.small)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Event,
-                                contentDescription = "Próximo a vencer",
-                                tint = Color(0xFFFFA000), // Amber
+                                contentDescription = "Vencimiento",
+                                tint = vencimientoColor,
                                 modifier = Modifier.size(14.dp)
                             )
                             Text(
-                                text = " Por vencer",
+                                text = " $daysLeft días",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = Color(0xFFFFA000)
+                                color = vencimientoColor
                             )
                         }
                     }

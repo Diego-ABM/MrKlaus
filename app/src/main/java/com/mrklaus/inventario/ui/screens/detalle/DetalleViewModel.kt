@@ -6,7 +6,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mrklaus.inventario.data.files.ImagenManager
 import com.mrklaus.inventario.domain.model.Producto
+import com.mrklaus.inventario.domain.model.Venta
+import com.mrklaus.inventario.domain.model.VentaItem
 import com.mrklaus.inventario.domain.repository.ProductoRepository
+import com.mrklaus.inventario.domain.repository.VentaRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,6 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DetalleViewModel @Inject constructor(
     private val repository: ProductoRepository,
+    private val ventaRepository: VentaRepository,
     private val imagenManager: ImagenManager,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -82,6 +86,38 @@ class DetalleViewModel @Inject constructor(
         viewModelScope.launch {
             repository.toggleFavorito(productoId)
             cargarProducto()
+        }
+    }
+
+    fun actualizarEstadoPedido(pedir: Boolean, nota: String?) {
+        viewModelScope.launch {
+            repository.actualizarEstadoPedido(productoId, pedir, nota)
+            cargarProducto()
+        }
+    }
+
+    fun registrarVenta(cantidad: Int) {
+        val currentState = _uiState.value
+        if (currentState is DetalleUiState.Exito) {
+            val producto = currentState.producto
+            if (producto.cantidadStock >= cantidad) {
+                viewModelScope.launch {
+                    val venta = Venta(
+                        total = producto.precio * cantidad,
+                        items = listOf(
+                            VentaItem(
+                                productoId = producto.id,
+                                nombreProducto = producto.nombre,
+                                cantidad = cantidad,
+                                precioVenta = producto.precio
+                            )
+                        )
+                    )
+                    ventaRepository.registrarVenta(venta)
+                    repository.actualizarStock(producto.id, producto.cantidadStock - cantidad)
+                    cargarProducto()
+                }
+            }
         }
     }
 }
