@@ -66,10 +66,13 @@ abstract class AppDatabase : RoomDatabase() {
             INSTANCE?.let { database ->
                 scope.launch(Dispatchers.IO) {
                     val dao = database.productoDao()
-                    // Temporal: Forzar recarga para asegurar que las nuevas imágenes se carguen
-                    Log.d("AppDatabase", "Starting forced seed reload...")
-                    val loader = SeedDataLoader(context, dao)
-                    loader.loadSeedData(forceReload = true)
+                    if (dao.getCount() == 0) {
+                        Log.d("AppDatabase", "Database is empty, starting seed...")
+                        val loader = SeedDataLoader(context, dao)
+                        loader.loadSeedData(forceReload = false)
+                    } else {
+                        Log.d("AppDatabase", "Database already has data, skipping seed")
+                    }
                 }
             }
         }

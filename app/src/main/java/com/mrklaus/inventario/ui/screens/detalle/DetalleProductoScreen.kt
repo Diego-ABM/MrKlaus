@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
@@ -37,6 +38,7 @@ import java.util.*
 @Composable
 fun DetalleProductoScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToEditar: (Long) -> Unit,
     viewModel: DetalleViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -63,6 +65,9 @@ fun DetalleProductoScreen(
                 },
                 actions = {
                     if (producto != null) {
+                        IconButton(onClick = { onNavigateToEditar(producto.id) }) {
+                            Icon(Icons.Default.Edit, contentDescription = "Editar")
+                        }
                         IconButton(onClick = { viewModel.toggleFavorito() }) {
                             Icon(
                                 imageVector = if (producto.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,

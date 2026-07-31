@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,7 +31,8 @@ import com.mrklaus.inventario.ui.theme.Spacing
 fun ListaProductosScreen(
     onNavigateToDetalle: (Long) -> Unit,
     onNavigateToAgregar: () -> Unit,
-    viewModel: ListaViewModel = hiltViewModel()
+    onNavigateToBackup: () -> Unit,
+    viewModel: ListaViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val query by viewModel.queryBusqueda.collectAsState()
@@ -61,6 +63,11 @@ fun ListaProductosScreen(
                                 fontWeight = FontWeight.ExtraBold,
                                 style = MaterialTheme.typography.headlineSmall
                             )
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = onNavigateToBackup) {
+                            Icon(Icons.Default.Settings, contentDescription = "Configuración", tint = MaterialTheme.colorScheme.onPrimary)
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
