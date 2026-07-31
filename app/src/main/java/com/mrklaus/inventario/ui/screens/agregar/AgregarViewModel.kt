@@ -44,6 +44,9 @@ class AgregarViewModel @Inject constructor(
     private val _stock = MutableStateFlow("0")
     val stock = _stock.asStateFlow()
 
+    private val _pesoKg = MutableStateFlow("")
+    val pesoKg = _pesoKg.asStateFlow()
+
     private val _fechaVencimiento = MutableStateFlow<Long?>(null)
     val fechaVencimiento = _fechaVencimiento.asStateFlow()
 
@@ -54,6 +57,7 @@ class AgregarViewModel @Inject constructor(
     fun onMascotaChange(value: Mascota) { _mascota.value = value }
     fun onCategoriaChange(value: Categoria) { _categoria.value = value }
     fun onStockChange(value: String) { _stock.value = value }
+    fun onPesoKgChange(value: String) { _pesoKg.value = value }
     fun onFechaVencimientoChange(value: Long?) { _fechaVencimiento.value = value }
 
     fun addFoto(uri: Uri) {
@@ -87,7 +91,7 @@ class AgregarViewModel @Inject constructor(
                 nota = null,
                 isFavorite = false,
                 fechaVencimiento = _fechaVencimiento.value,
-                pesoKg = null,
+                pesoKg = _pesoKg.value.toDoubleOrNull(),
                 tipoArena = null,
                 fotos = emptyList(), // Se agregarán vía tabla fotos_producto
                 fechaActualizacion = System.currentTimeMillis()

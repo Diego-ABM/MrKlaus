@@ -6,12 +6,17 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.mrklaus.inventario.data.local.dao.PedidoClienteDao
+import com.mrklaus.inventario.data.local.dao.LogDao
 import com.mrklaus.inventario.data.local.dao.ProductoDao
 import com.mrklaus.inventario.data.local.dao.VentaDao
 import com.mrklaus.inventario.data.local.entity.FotoProductoEntity
 import com.mrklaus.inventario.data.local.entity.ProductoEntity
 import com.mrklaus.inventario.data.local.entity.VentaEntity
 import com.mrklaus.inventario.data.local.entity.VentaItemEntity
+import com.mrklaus.inventario.data.local.entity.PedidoClienteEntity
+import com.mrklaus.inventario.data.local.entity.PedidoClienteItemEntity
+import com.mrklaus.inventario.data.local.entity.LogEntryEntity
 import com.mrklaus.inventario.data.local.seed.SeedDataLoader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,14 +27,19 @@ import kotlinx.coroutines.launch
         ProductoEntity::class, 
         FotoProductoEntity::class, 
         VentaEntity::class, 
-        VentaItemEntity::class
+        VentaItemEntity::class,
+        PedidoClienteEntity::class,
+        PedidoClienteItemEntity::class,
+        LogEntryEntity::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun productoDao(): ProductoDao
     abstract fun ventaDao(): VentaDao
+    abstract fun pedidoClienteDao(): PedidoClienteDao
+    abstract fun logDao(): LogDao
 
     companion object {
         @Volatile

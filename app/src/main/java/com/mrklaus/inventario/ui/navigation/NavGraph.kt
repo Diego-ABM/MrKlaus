@@ -19,6 +19,9 @@ import com.mrklaus.inventario.ui.screens.pedidos.PedidosScreen
 import com.mrklaus.inventario.ui.screens.ventas.VentasScreen
 import com.mrklaus.inventario.ui.screens.backup.BackupScreen
 import com.mrklaus.inventario.ui.screens.editar.EditarProductoScreen
+import com.mrklaus.inventario.ui.screens.splash.SplashScreen
+import com.mrklaus.inventario.ui.screens.pedidos_clientes.PedidosClienteScreen
+import com.mrklaus.inventario.ui.screens.logs.LogsScreen
 
 @Composable
 fun NavGraph(
@@ -27,9 +30,17 @@ fun NavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Lista.route,
+        startDestination = Screen.Splash.route,
         modifier = modifier
     ) {
+        composable(Screen.Splash.route) {
+            SplashScreen(onNavigateToMain = {
+                navController.navigate(Screen.Lista.route) {
+                    popUpTo(Screen.Splash.route) { inclusive = true }
+                }
+            })
+        }
+
         composable(Screen.Lista.route) {
             ListaProductosScreen(
                 onNavigateToDetalle = { id ->
@@ -79,12 +90,7 @@ fun NavGraph(
         }
 
         composable(Screen.Pedidos.route) {
-            PedidosScreen(
-                onNavigateToDetalle = { id ->
-                    navController.navigate(Screen.Detalle.createRoute(id))
-                },
-                onNavigateBack = { navController.popBackStack() }
-            )
+            PedidosClienteScreen(onNavigateBack = { navController.popBackStack() })
         }
 
         composable(Screen.Ventas.route) {
@@ -99,7 +105,14 @@ fun NavGraph(
         }
 
         composable(Screen.Backup.route) {
-            BackupScreen(onNavigateBack = { navController.popBackStack() })
+            BackupScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToLogs = { navController.navigate(Screen.Logs.route) }
+            )
+        }
+
+        composable(Screen.Logs.route) {
+            LogsScreen(onNavigateBack = { navController.popBackStack() })
         }
     }
 }

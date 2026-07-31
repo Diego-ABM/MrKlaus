@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 interface ProductoRepository {
     fun getAllProductos(): Flow<List<Producto>>
     fun getProductosPorMascota(mascota: Mascota): Flow<List<Producto>>
+    fun getProductoByIdFlow(id: Long): Flow<Producto?>
     suspend fun getProductoById(id: Long): Producto?
     suspend fun insertarProducto(producto: Producto): Long
     suspend fun actualizarProducto(producto: Producto)

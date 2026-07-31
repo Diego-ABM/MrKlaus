@@ -2,6 +2,8 @@ package com.mrklaus.inventario.di
 
 import android.content.Context
 import com.mrklaus.inventario.data.local.AppDatabase
+import com.mrklaus.inventario.data.local.dao.PedidoClienteDao
+import com.mrklaus.inventario.data.local.dao.LogDao
 import com.mrklaus.inventario.data.local.dao.ProductoDao
 import com.mrklaus.inventario.data.local.dao.VentaDao
 import dagger.Module
@@ -38,5 +40,15 @@ object DatabaseModule {
     @Provides
     fun provideVentaDao(database: AppDatabase): VentaDao {
         return database.ventaDao()
+    }
+
+    @Provides
+    fun providePedidoClienteDao(database: AppDatabase): PedidoClienteDao {
+        return database.pedidoClienteDao()
+    }
+
+    @Provides
+    fun provideLogDao(database: AppDatabase): LogDao {
+        return database.logDao()
     }
 }

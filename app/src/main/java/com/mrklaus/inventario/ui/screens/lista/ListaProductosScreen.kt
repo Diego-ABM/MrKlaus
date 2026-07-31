@@ -112,11 +112,11 @@ fun ListaProductosScreen(
                     onClick = { viewModel.filtrarPorMascota(null) },
                     text = { Text("Todos") }
                 )
-                Mascota.values().forEach { mascota ->
+                Mascota.entries.forEach { mascota ->
                     Tab(
                         selected = mascotaSeleccionada == mascota,
                         onClick = { viewModel.filtrarPorMascota(mascota) },
-                        text = { Text(mascota.name.capitalize()) }
+                        text = { Text(mascota.name.lowercase().replaceFirstChar { it.uppercase() }) }
                     )
                 }
             }
@@ -136,11 +136,11 @@ fun ListaProductosScreen(
                         label = { Text("Todas") }
                     )
                 }
-                items(Categoria.values()) { categoria ->
+                items(Categoria.entries) { categoria ->
                     FilterChip(
                         selected = categoriaSeleccionada == categoria,
                         onClick = { viewModel.filtrarPorCategoria(categoria) },
-                        label = { Text(categoria.name.replace("_", " ").capitalize()) }
+                        label = { Text(categoria.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() }) }
                     )
                 }
             }

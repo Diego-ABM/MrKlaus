@@ -26,6 +26,7 @@ import kotlin.system.exitProcess
 @Composable
 fun BackupScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToLogs: () -> Unit,
     viewModel: BackupViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -48,8 +49,7 @@ fun BackupScreen(
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
                 is BackupEvent.RestartApp -> {
-                    // Force restart to apply new DB
-                    exitProcess(0)
+                    // Handled in uiState observer to show snackbar first
                 }
             }
         }
@@ -137,6 +137,13 @@ fun BackupScreen(
                 Text("Iniciar Sesión con Google (Próximamente)")
             }
 
+            TextButton(
+                onClick = onNavigateToLogs,
+                modifier = Modifier.padding(top = Spacing.medium)
+            ) {
+                Text("Ver Registros del Sistema (Logs)")
+            }
+
             if (uiState is BackupUiState.Loading) {
                 CircularProgressIndicator(modifier = Modifier.padding(top = Spacing.medium))
             }
@@ -148,6 +155,11 @@ fun BackupScreen(
         when (val state = uiState) {
             is BackupUiState.Success -> {
                 snackbarHostState.showSnackbar(state.message)
+                if (state.message.contains("restaurados")) {
+                    // Solo si es importación exitosa, reiniciamos
+                    kotlinx.coroutines.delay(2000)
+                    exitProcess(0)
+                }
                 viewModel.clearState()
             }
             is BackupUiState.Error -> {

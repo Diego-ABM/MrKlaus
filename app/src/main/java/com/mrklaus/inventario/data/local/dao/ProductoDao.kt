@@ -22,6 +22,10 @@ interface ProductoDao {
 
     @Transaction
     @Query("SELECT * FROM productos WHERE id = :id")
+    fun getPorIdFlow(id: Long): Flow<ProductoConFotos?>
+
+    @Transaction
+    @Query("SELECT * FROM productos WHERE id = :id")
     suspend fun getPorId(id: Long): ProductoConFotos?
 
     @Transaction

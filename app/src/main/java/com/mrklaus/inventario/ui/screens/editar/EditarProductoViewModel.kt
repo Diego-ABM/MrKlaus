@@ -51,6 +51,9 @@ class EditarProductoViewModel @Inject constructor(
     private val _stock = MutableStateFlow("0")
     val stock = _stock.asStateFlow()
 
+    private val _pesoKg = MutableStateFlow("")
+    val pesoKg = _pesoKg.asStateFlow()
+
     private val _fechaVencimiento = MutableStateFlow<Long?>(null)
     val fechaVencimiento = _fechaVencimiento.asStateFlow()
 
@@ -65,6 +68,7 @@ class EditarProductoViewModel @Inject constructor(
                 _mascota.value = producto.mascota
                 _categoria.value = producto.categoria
                 _stock.value = producto.cantidadStock.toString()
+                _pesoKg.value = producto.pesoKg?.toString() ?: ""
                 _fechaVencimiento.value = producto.fechaVencimiento
                 _fotosSeleccionadas.value = producto.fotos
             }
@@ -78,6 +82,7 @@ class EditarProductoViewModel @Inject constructor(
     fun onMascotaChange(value: Mascota) { _mascota.value = value }
     fun onCategoriaChange(value: Categoria) { _categoria.value = value }
     fun onStockChange(value: String) { _stock.value = value }
+    fun onPesoKgChange(value: String) { _pesoKg.value = value }
     fun onFechaVencimientoChange(value: Long?) { _fechaVencimiento.value = value }
 
     fun addFoto(uri: Uri) {
@@ -105,6 +110,7 @@ class EditarProductoViewModel @Inject constructor(
                 precio = _precio.value.toDoubleOrNull() ?: 0.0,
                 precioCompra = _precioCompra.value.toDoubleOrNull() ?: 0.0,
                 cantidadStock = _stock.value.toIntOrNull() ?: 0,
+                pesoKg = _pesoKg.value.toDoubleOrNull(),
                 mascota = _mascota.value,
                 categoria = _categoria.value,
                 fechaVencimiento = _fechaVencimiento.value,

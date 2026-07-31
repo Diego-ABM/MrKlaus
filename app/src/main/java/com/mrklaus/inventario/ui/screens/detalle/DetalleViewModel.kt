@@ -11,8 +11,7 @@ import com.mrklaus.inventario.domain.model.VentaItem
 import com.mrklaus.inventario.domain.repository.ProductoRepository
 import com.mrklaus.inventario.domain.repository.VentaRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,37 +25,28 @@ class DetalleViewModel @Inject constructor(
 
     private val productoId: Long = checkNotNull(savedStateHandle["productoId"])
 
-    private val _uiState = MutableStateFlow<DetalleUiState>(DetalleUiState.Cargando)
-    val uiState = _uiState.asStateFlow()
-
-    init {
-        cargarProducto()
-    }
-
-    private fun cargarProducto() {
-        viewModelScope.launch {
-            val producto = repository.getProductoById(productoId)
-            if (producto != null) {
-                _uiState.value = DetalleUiState.Exito(producto)
-            } else {
-                _uiState.value = DetalleUiState.NoEncontrado
-            }
+    val uiState: StateFlow<DetalleUiState> = repository.getProductoByIdFlow(productoId)
+        .map { producto: Producto? ->
+            if (producto != null) DetalleUiState.Exito(producto) else DetalleUiState.NoEncontrado
         }
-    }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = DetalleUiState.Cargando
+        )
 
     fun actualizarStock(nuevaCantidad: Int) {
-        val currentState = _uiState.value
+        val currentState = uiState.value
         if (currentState is DetalleUiState.Exito) {
             val productoActualizado = currentState.producto.copy(cantidadStock = nuevaCantidad)
             viewModelScope.launch {
                 repository.actualizarProducto(productoActualizado)
-                _uiState.value = DetalleUiState.Exito(productoActualizado)
             }
         }
     }
 
     fun eliminarProducto(onSuccess: () -> Unit) {
-        val currentState = _uiState.value
+        val currentState = uiState.value
         if (currentState is DetalleUiState.Exito) {
             viewModelScope.launch {
                 repository.eliminarProducto(currentState.producto)
@@ -70,7 +60,6 @@ class DetalleViewModel @Inject constructor(
             val path = imagenManager.guardarImagen(uri)
             if (path != null) {
                 repository.agregarFoto(productoId, path)
-                cargarProducto()
             }
         }
     }
@@ -78,26 +67,23 @@ class DetalleViewModel @Inject constructor(
     fun eliminarFoto(ruta: String) {
         viewModelScope.launch {
             repository.eliminarFoto(ruta)
-            cargarProducto()
         }
     }
 
     fun toggleFavorito() {
         viewModelScope.launch {
             repository.toggleFavorito(productoId)
-            cargarProducto()
         }
     }
 
     fun actualizarEstadoPedido(pedir: Boolean, nota: String?) {
         viewModelScope.launch {
             repository.actualizarEstadoPedido(productoId, pedir, nota)
-            cargarProducto()
         }
     }
 
     fun registrarVenta(cantidad: Int) {
-        val currentState = _uiState.value
+        val currentState = uiState.value
         if (currentState is DetalleUiState.Exito) {
             val producto = currentState.producto
             if (producto.cantidadStock >= cantidad) {
@@ -116,7 +102,6 @@ class DetalleViewModel @Inject constructor(
                     )
                     ventaRepository.registrarVenta(venta)
                     repository.actualizarStock(producto.id, producto.cantidadStock - cantidad)
-                    cargarProducto()
                 }
             }
         }

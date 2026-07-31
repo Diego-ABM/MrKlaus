@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mrklaus.inventario.data.backup.DatabaseBackupManager
+import com.mrklaus.inventario.util.LogManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -18,7 +19,8 @@ import javax.inject.Inject
 @HiltViewModel
 class BackupViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val backupManager: DatabaseBackupManager
+    private val backupManager: DatabaseBackupManager,
+    private val logManager: LogManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<BackupUiState>(BackupUiState.Idle)
@@ -41,11 +43,15 @@ class BackupViewModel @Inject constructor(
                         }
                     }
                     _uiState.value = BackupUiState.Success("Base de datos exportada con éxito")
+                    logManager.info("Backup", "Base de datos exportada a: $uri")
                 } catch (e: Exception) {
                     _uiState.value = BackupUiState.Error("Error al escribir el archivo: ${e.message}")
+                    logManager.error("Backup", "Error al exportar", e)
                 }
             } else {
-                _uiState.value = BackupUiState.Error("Error al exportar: ${result.exceptionOrNull()?.message}")
+                val error = result.exceptionOrNull()
+                _uiState.value = BackupUiState.Error("Error al exportar: ${error?.message}")
+                logManager.error("Backup", "Error al exportar base de datos", error)
             }
             tempFile.delete()
         }
@@ -65,13 +71,17 @@ class BackupViewModel @Inject constructor(
                 
                 val result = backupManager.importDatabase(tempFile)
                 if (result.isSuccess) {
+                    logManager.info("Backup", "Base de datos importada exitosamente desde: $uri")
                     _uiState.value = BackupUiState.Success("Datos restaurados. La aplicación se reiniciará.")
                     _eventFlow.emit(BackupEvent.RestartApp)
                 } else {
-                    _uiState.value = BackupUiState.Error("Error al importar: ${result.exceptionOrNull()?.message}")
+                    val error = result.exceptionOrNull()
+                    _uiState.value = BackupUiState.Error("Error al importar: ${error?.message}")
+                    logManager.error("Backup", "Error al importar base de datos", error)
                 }
             } catch (e: Exception) {
                 _uiState.value = BackupUiState.Error("Error al leer el archivo: ${e.message}")
+                logManager.error("Backup", "Error crítico durante importación", e)
             } finally {
                 tempFile.delete()
             }

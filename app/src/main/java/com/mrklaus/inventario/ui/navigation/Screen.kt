@@ -1,6 +1,7 @@
 package com.mrklaus.inventario.ui.navigation
 
 sealed class Screen(val route: String) {
+    object Splash : Screen("splash")
     object Lista : Screen("lista")
     object Detalle : Screen("detalle/{productoId}") {
         fun createRoute(productoId: Long) = "detalle/$productoId"
@@ -14,4 +15,5 @@ sealed class Screen(val route: String) {
         fun createRoute(productoId: Long) = "editar/$productoId"
     }
     object Backup : Screen("backup")
+    object Logs : Screen("logs")
 }

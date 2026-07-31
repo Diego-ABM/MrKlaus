@@ -25,12 +25,19 @@ import androidx.navigation.compose.rememberNavController
 import com.mrklaus.inventario.ui.navigation.NavGraph
 import com.mrklaus.inventario.ui.navigation.Screen
 import com.mrklaus.inventario.ui.theme.MrKlausTheme
+import com.mrklaus.inventario.util.LogManager
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var logManager: LogManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        logManager.cleanup() // Limpiar logs antiguos al iniciar
         enableEdgeToEdge()
         setContent {
             MrKlausTheme {

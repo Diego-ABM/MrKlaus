@@ -29,6 +29,10 @@ class ProductoRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun getProductoByIdFlow(id: Long): Flow<Producto?> {
+        return productoDao.getPorIdFlow(id).map { it?.toDomain() }
+    }
+
     override suspend fun getProductoById(id: Long): Producto? {
         return productoDao.getPorId(id)?.toDomain()
     }
