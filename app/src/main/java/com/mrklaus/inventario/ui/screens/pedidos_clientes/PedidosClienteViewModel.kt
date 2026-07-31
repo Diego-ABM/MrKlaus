@@ -38,20 +38,29 @@ class PedidosClienteViewModel @Inject constructor(
 
     fun crearPedido(nombre: String, contacto: String?, items: List<PedidoClienteItemEntity>) {
         viewModelScope.launch {
-            val total = items.sumOf { it.precioUnitario * it.cantidad }
+            // Obtener precio de compra actual para cada item
+            val itemsConCosto = items.map { item ->
+                if (item.productoId != null) {
+                    val prod = productoRepository.getProductoById(item.productoId)
+                    item.copy(precioCompra = prod?.precioCompra ?: 0.0)
+                } else {
+                    item // Producto personalizado, precioCompra=0 por defecto
+                }
+            }
+            val total = itemsConCosto.sumOf { it.precioUnitario * it.cantidad }
             val pedido = PedidoClienteEntity(
                 nombreCliente = nombre,
                 contacto = contacto,
                 total = total,
-                fechaEntregaEstimada = null // Opcional
+                fechaEntregaEstimada = null
             )
-            pedidoRepository.crearPedido(pedido, items)
+            pedidoRepository.crearPedido(pedido, itemsConCosto)
         }
     }
 
     fun marcarEntregado(pedido: PedidoClienteEntity, entregado: Boolean) {
         viewModelScope.launch {
-            pedidoRepository.actualizarPedido(pedido.copy(entregado = entregado))
+            pedidoRepository.completarEntrega(pedido.id, entregado)
         }
     }
 

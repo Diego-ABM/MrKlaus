@@ -109,6 +109,10 @@ class ProductoRepositoryImpl @Inject constructor(
         return productoDao.getCapitalInvertido().map { it ?: 0.0 }
     }
 
+    override fun getInversionPendiente(): Flow<Double> {
+        return productoDao.getInversionPendiente().map { it ?: 0.0 }
+    }
+
     private fun ProductoConFotos.toDomain(): Producto {
         return Producto(
             id = producto.id,

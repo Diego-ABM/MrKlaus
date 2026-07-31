@@ -1,5 +1,7 @@
 package com.mrklaus.inventario.ui.screens.ventas
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -9,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,12 +35,21 @@ fun VentasScreen(
     val gananciaNeta by viewModel.gananciaNeta.collectAsState()
     val gananciaBruta by viewModel.gananciaBruta.collectAsState()
     val capitalInvertido by viewModel.capitalInvertido.collectAsState()
+    val inversionPendiente by viewModel.inversionPendiente.collectAsState()
     val mesSeleccionado by viewModel.mesSeleccionado.collectAsState()
+    val modoAnual by viewModel.modoAnual.collectAsState()
     
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("Historial", "Rotación", "Resumen")
     val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
     val monthFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+    val yearFormat = SimpleDateFormat("yyyy", Locale.getDefault())
+
+    val exportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("text/plain")
+    ) { uri ->
+        uri?.let { viewModel.exportarReporte(it) }
+    }
 
     Scaffold(
         topBar = {
@@ -47,12 +59,27 @@ fun VentasScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
+                },
+                actions = {
+                    IconButton(onClick = { exportLauncher.launch("reporte_mrklaus_${System.currentTimeMillis()}.txt") }) {
+                        Icon(Icons.Default.FileDownload, contentDescription = "Exportar Reporte")
+                    }
                 }
             )
         }
     ) { padding ->
         Column(modifier = Modifier.padding(padding)) {
-            // Selector de Mes
+            // Filtro Periodo
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.medium),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("Modo Anual", style = MaterialTheme.typography.labelLarge)
+                Switch(checked = modoAnual, onCheckedChange = { viewModel.toggleModoAnual() })
+            }
+
+            // Selector de Mes/Año
             Card(
                 modifier = Modifier.fillMaxWidth().padding(Spacing.medium),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
@@ -63,15 +90,15 @@ fun VentasScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     IconButton(onClick = { viewModel.cambiarMes(-1) }) {
-                        Icon(Icons.Default.ChevronLeft, contentDescription = "Mes anterior")
+                        Icon(Icons.Default.ChevronLeft, contentDescription = "Anterior")
                     }
                     Text(
-                        text = monthFormat.format(mesSeleccionado.time).replaceFirstChar { it.uppercase() },
+                        text = if (modoAnual) yearFormat.format(mesSeleccionado.time) else monthFormat.format(mesSeleccionado.time).replaceFirstChar { it.uppercase() },
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                     IconButton(onClick = { viewModel.cambiarMes(1) }) {
-                        Icon(Icons.Default.ChevronRight, contentDescription = "Mes siguiente")
+                        Icon(Icons.Default.ChevronRight, contentDescription = "Siguiente")
                     }
                 }
             }
@@ -90,7 +117,7 @@ fun VentasScreen(
                 0 -> {
                     if (ventas.isEmpty()) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("No hay ventas registradas en este mes")
+                            Text("No hay registros en este periodo")
                         }
                     } else {
                         LazyColumn(contentPadding = PaddingValues(Spacing.medium)) {
@@ -115,7 +142,7 @@ fun VentasScreen(
                 1 -> {
                     if (rotacion.isEmpty()) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("Sin datos de rotación este mes")
+                            Text("Sin datos de rotación en este periodo")
                         }
                     } else {
                         LazyColumn(contentPadding = PaddingValues(Spacing.medium)) {
@@ -135,20 +162,25 @@ fun VentasScreen(
                         verticalArrangement = Arrangement.spacedBy(Spacing.medium)
                     ) {
                         ReportCard(
-                            title = "Ganancia Bruta (Ventas)",
+                            title = "Ganancia Bruta (Ventas + Pedidos)",
                             value = gananciaBruta,
                             color = MaterialTheme.colorScheme.primary
                         )
                         ReportCard(
-                            title = "Ganancia Neta (Utilidad)",
+                            title = "Utilidad Real (Ganancia Neta)",
                             value = gananciaNeta,
                             color = Color(0xFF4CAF50)
                         )
                         HorizontalDivider()
                         ReportCard(
-                            title = "Capital Invertido (Stock Actual)",
+                            title = "Capital en Stock Actual",
                             value = capitalInvertido,
                             color = MaterialTheme.colorScheme.tertiary
+                        )
+                        ReportCard(
+                            title = "Inversión Pendiente (Próximos Pedidos)",
+                            value = inversionPendiente,
+                            color = Color(0xFFE91E63) // Rosa para resaltar deuda/salida de dinero
                         )
                     }
                 }

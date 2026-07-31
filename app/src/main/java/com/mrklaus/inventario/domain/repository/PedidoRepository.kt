@@ -9,5 +9,6 @@ interface PedidoRepository {
     fun getAllPedidos(): Flow<List<PedidoClienteConItems>>
     suspend fun crearPedido(pedido: PedidoClienteEntity, items: List<PedidoClienteItemEntity>)
     suspend fun actualizarPedido(pedido: PedidoClienteEntity)
+    suspend fun completarEntrega(pedidoId: Long, entregado: Boolean)
     suspend fun eliminarPedido(pedido: PedidoClienteEntity)
 }

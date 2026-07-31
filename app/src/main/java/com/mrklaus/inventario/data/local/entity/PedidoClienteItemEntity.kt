@@ -24,5 +24,6 @@ data class PedidoClienteItemEntity(
     val productoId: Long?, // Opcional si es un producto personalizado
     val nombreProducto: String,
     val cantidad: Int,
+    val precioCompra: Double, // Costo al momento de pedido
     val precioUnitario: Double
 )

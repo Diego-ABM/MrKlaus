@@ -22,4 +22,5 @@ interface ProductoRepository {
     suspend fun actualizarEstadoPedido(id: Long, pedir: Boolean, nota: String?)
     suspend fun actualizarStock(id: Long, nuevoStock: Int)
     fun getCapitalInvertido(): Flow<Double>
+    fun getInversionPendiente(): Flow<Double>
 }

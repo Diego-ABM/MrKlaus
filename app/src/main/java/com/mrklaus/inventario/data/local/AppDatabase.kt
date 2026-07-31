@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
         PedidoClienteItemEntity::class,
         LogEntryEntity::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

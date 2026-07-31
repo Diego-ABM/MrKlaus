@@ -193,6 +193,7 @@ fun NuevoPedidoDialog(
                                         productoId = null,
                                         nombreProducto = query,
                                         cantidad = 1,
+                                        precioCompra = 0.0,
                                         precioUnitario = 0.0
                                     )
                                 )
@@ -216,6 +217,7 @@ fun NuevoPedidoDialog(
                                             productoId = prod.id,
                                             nombreProducto = prod.nombre,
                                             cantidad = 1,
+                                            precioCompra = prod.precioCompra,
                                             precioUnitario = prod.precio
                                         )
                                     )

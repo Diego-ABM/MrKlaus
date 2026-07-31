@@ -82,4 +82,7 @@ interface ProductoDao {
 
     @Query("SELECT SUM(cantidadStock * precioCompra) FROM productos")
     fun getCapitalInvertido(): Flow<Double?>
+
+    @Query("SELECT SUM(stockMinimo * precioCompra) FROM productos WHERE pedirAlProveedor = 1")
+    fun getInversionPendiente(): Flow<Double?>
 }

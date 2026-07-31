@@ -13,6 +13,7 @@ data class PedidoClienteEntity(
     val fechaEntregaEstimada: Long?,
     val entregado: Boolean = false,
     val pagado: Boolean = false,
+    val stockDescontado: Boolean = false,
     val nota: String? = null,
     val total: Double = 0.0
 )
